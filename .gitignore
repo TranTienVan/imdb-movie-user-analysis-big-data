@@ -1,0 +1,6 @@
+data/
+test*
+*.json
+__pycache__
+temp
+*.ipynb
