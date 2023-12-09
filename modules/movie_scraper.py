@@ -315,24 +315,39 @@ def scrape_a_movie(movie_id):
     movie_obj["scraped_date"] = scraped_date
     
     ##### title
-    Title = detail_infor_script['name']
-    movie_obj["title"] = Title
+    try:
+        Title = detail_infor_script['name']
+        movie_obj["title"] = Title
+    except:
+        movie_obj["title"] = ""
     
     ##### genre
-    Genre = detail_infor_script["genre"]
-    movie_obj["genre"] = Genre
+    try:
+        Genre = detail_infor_script["genre"]
+        movie_obj["genre"] = Genre
+    except:
+        movie_obj["genre"] = ""
     
     ##### published_date
-    Published_Data = detail_infor_script["datePublished"]
-    movie_obj["published_date"] = Published_Data
+    try:
+        Published_Data = detail_infor_script["datePublished"]
+        movie_obj["published_date"] = Published_Data
+    except:
+        movie_obj["published_date"] = ""
     
     ##### number_of_ratings
-    Number_Of_Ratings = detail_infor_script['aggregateRating']['ratingCount']
-    movie_obj["number_of_ratings"] = Number_Of_Ratings
+    try:
+        Number_Of_Ratings = detail_infor_script['aggregateRating']['ratingCount']
+        movie_obj["number_of_ratings"] = Number_Of_Ratings
+    except:
+        movie_obj["number_of_ratings"] = ""
     
     ##### ratings_average
-    Ratings_Average = detail_infor_script['aggregateRating']['ratingValue']
-    movie_obj["ratings_average"] = Ratings_Average
+    try:
+        Ratings_Average = detail_infor_script['aggregateRating']['ratingValue']
+        movie_obj["ratings_average"] = Ratings_Average
+    except:
+        movie_obj["ratings_average"] = ""
     
     ##### popularity_rank
     try: 
