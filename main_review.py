@@ -1,9 +1,7 @@
 from modules.connectors.local_storage import *
-import pandas as pd
 from modules.user_scraper import scrape_a_user
 from modules.movie_scraper import scrape_a_movie
 from modules.review_scraper import scrape_reviews
-            
 
 def main():
     film_paths = list_folders("./data/reviews/")
@@ -27,10 +25,10 @@ def main():
         data_user = scrape_a_user(user_id)
         
         for d in data_user["top_ratings_movies"]:
-            scrape_a_movie(d["movie_id"])
+            scrape_reviews(d["movie_id"])
         
-        for d in data_user["top_reviews_movies"]:
-            scrape_a_movie(d["movie_id"])
+        for d in data_user["top_reviews_movies"]:            
+            scrape_reviews(d["movie_id"])
+            
             
 main()
-

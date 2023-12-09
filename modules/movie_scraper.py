@@ -296,7 +296,7 @@ def scrape_a_movie(movie_id):
         
         with open(path_data + f"{movie_id}.json", "r", encoding="utf-8") as f:
             data = json.load(f)
-        return None
+        return data
     
     response = requests.get(f"https://www.imdb.com/title/{movie_id}/", cookies=COOKIES, headers=HEADERS_2)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -432,9 +432,12 @@ def scrape_a_movie(movie_id):
     movie_obj["number_of_images"] = Number_Of_Images
     
     ##### total_added_users
-    Total_Added_Users = detail_infor_script['props']['pageProps']['aboveTheFoldData']['engagementStatistics']['watchlistStatistics']['displayableCount']['text']
-    movie_obj["total_added_users"] = Total_Added_Users
-    
+    try:
+        Total_Added_Users = detail_infor_script['props']['pageProps']['aboveTheFoldData']['engagementStatistics']['watchlistStatistics']['displayableCount']['text']
+        movie_obj["total_added_users"] = Total_Added_Users
+    except:
+        movie_obj["total_added_users"] = ""
+        
     ##### total_reviews
     try:
         Total_Reviews = int(detail_infor_script['props']['pageProps']['aboveTheFoldData']['reviews']['total'])
