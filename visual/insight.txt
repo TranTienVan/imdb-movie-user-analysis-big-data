@@ -1,0 +1,3 @@
+Từ các biểu đồ trên có thể rút ra một số insights quan trọng về dữ liệu đánh giá và sự đồng thuận của người dùng với các bộ phim theo từng năm:
+- Độ tương tác với các bộ phim và chất lượng của các review đang bị giảm mạnh vào những năm gần đây.
+- Số lượt đánh giá 9-10 sao rất nhiều, nhưng độ tin cậy của các đánh giá đó theo từng bộ phim rất thấp.
