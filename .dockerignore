@@ -6,4 +6,4 @@ test.ipynb
 crawlers/data
 scrape_reviews.ipynb
 scrape_users.ipynb
-*.csv
+reviews.csv
