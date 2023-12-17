@@ -10,4 +10,4 @@ class Settings(BaseSettings):
 
 
 SETTING = Settings()
-movies_df = pd.read_csv("/app/data/movies.csv")
+movies_df = pd.read_csv("./app/data/movies.csv")

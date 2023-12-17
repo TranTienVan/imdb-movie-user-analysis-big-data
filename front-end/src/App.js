@@ -8,10 +8,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 function App() {
   const [open, setOpen] = React.useState(true);
@@ -24,6 +25,17 @@ function App() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const getMoviesList = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5001/api/movies?limit=1000&page=1"
+      );
+      console.log("ndphong res", res);
+    } catch (error) {
+      console.log("ndphong error", error);
+    }
   };
 
   const handleLogin = () => {
@@ -40,6 +52,14 @@ function App() {
       theme: "light",
     });
   };
+
+  const getRandomImage = ()=>{
+
+  }
+  
+  useEffect(() => {
+    getMoviesList();
+  }, []);
 
   return (
     <div>
@@ -80,6 +100,69 @@ function App() {
                 }}
               >
                 Phim đã xem
+              </h2>
+            </div>
+            <div style={{ paddingTop: "60px" }}>
+              <Grid container spacing={2}>
+                <Grid item xs={3}>
+                  <img
+                    src="https://picsum.photos/300/200"
+                    style={{
+                      borderRadius: "6px",
+                    }}
+                  />
+                  <h3 style={{ textAlign: "justify" }}>
+                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
+                    Anh Đây Remix
+                  </h3>
+                </Grid>
+                <Grid item xs={3}>
+                  <img
+                    src="https://picsum.photos/300/200"
+                    style={{
+                      borderRadius: "6px",
+                    }}
+                  />
+                  <h3 style={{ textAlign: "justify" }}>
+                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
+                    Anh Đây Remix
+                  </h3>
+                </Grid>
+                <Grid item xs={3}>
+                  <img
+                    src="https://picsum.photos/300/200"
+                    style={{
+                      borderRadius: "6px",
+                    }}
+                  />
+                  <h3 style={{ textAlign: "justify" }}>
+                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
+                    Anh Đây Remix
+                  </h3>
+                </Grid>
+                <Grid item xs={3}>
+                  <img
+                    src="https://picsum.photos/300/201"
+                    style={{
+                      borderRadius: "6px",
+                    }}
+                  />
+                  <h3 style={{ textAlign: "justify" }}>
+                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
+                    Anh Đây Remix
+                  </h3>
+                </Grid>
+              </Grid>
+            </div>
+          </div>
+          <div className="reviewed-movies-list" style={{ paddingTop: "60px" }}>
+            <div>
+              <h2
+                style={{
+                  textTransform: "uppercase",
+                }}
+              >
+                Phim liên quan
               </h2>
             </div>
             <div style={{ paddingTop: "60px" }}>
