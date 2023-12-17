@@ -16,7 +16,7 @@ def movies_job():
     
     if ids:
         list_ids = ids.split(",")
-        data = movies_df[movies_df["id"].isin(list_ids)]
+        data = movies_df[movies_df["id"].isin(list_ids)].to_dict("records")
         
     else:
 

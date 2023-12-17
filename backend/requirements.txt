@@ -10,3 +10,4 @@ flask-openapi3
 pydantic
 pydantic-settings
 flask-jwt-extended
+flask-cors
