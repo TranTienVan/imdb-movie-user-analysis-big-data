@@ -1,0 +1,12 @@
+flask
+flask_cors
+pymongo
+requests
+pandas
+python-dotenv
+gspread
+oauth2client
+flask-openapi3
+pydantic
+pydantic-settings
+flask-jwt-extended

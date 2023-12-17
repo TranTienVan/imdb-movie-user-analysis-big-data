@@ -3,7 +3,8 @@ import pandas as pd
 from modules.user_scraper import scrape_a_user
 from modules.movie_scraper import scrape_a_movie
 from modules.review_scraper import scrape_reviews
-            
+import time
+import random
 
 def main():
     film_paths = list_folders("./data/reviews/")
@@ -25,12 +26,20 @@ def main():
     
     for user_id in user_ids:
         data_user = scrape_a_user(user_id)
-        
+        time.sleep(random.randint(5, 10))
         for d in data_user["top_ratings_movies"]:
-            scrape_a_movie(d["movie_id"])
+            try:
+                scrape_a_movie(d["movie_id"])
+            except Exception as e:
+                print("Error 1", e)
+                time.sleep(10)
         
         for d in data_user["top_reviews_movies"]:
-            scrape_a_movie(d["movie_id"])
+            try:
+                scrape_a_movie(d["movie_id"])
+            except Exception as e:
+                print("Error 2", e)
+                time.sleep(10)
             
 main()
 
