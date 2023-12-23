@@ -12,4 +12,6 @@ class Settings(BaseSettings):
 SETTING = Settings()
 movies_df = pd.read_csv("./data/movies.csv")
 reviews_df = pd.read_csv("./data/reviews.csv")
+reviews_df['date_review'] = pd.to_datetime(reviews_df['date_review'], format='%d %B %Y')
+reviews_df['year'] = reviews_df['date_review'].dt.year
 users_df = pd.read_csv("./data/users.csv")
