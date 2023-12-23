@@ -13,11 +13,23 @@ import Grid from "@mui/material/Grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { createRoot } from "react-dom/client";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 function App() {
+  const navigation = useNavigate();
+
   const [open, setOpen] = React.useState(true);
 
   const [userId, setUserId] = useState("");
+
+  const [moviesList, setMovieList] = useState([]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -30,9 +42,12 @@ function App() {
   const getMoviesList = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5001/api/movies?limit=1000&page=1"
+        "http://42.117.27.86:8080/api/movies?limit=1000&page=1"
       );
       console.log("ndphong res", res);
+      if (res && res.data) {
+        setMovieList(res.data);
+      }
     } catch (error) {
       console.log("ndphong error", error);
     }
@@ -53,10 +68,8 @@ function App() {
     });
   };
 
-  const getRandomImage = ()=>{
+  const getRandomImage = () => {};
 
-  }
-  
   useEffect(() => {
     getMoviesList();
   }, []);
@@ -76,12 +89,14 @@ function App() {
                 width: "400px",
               }}
             >
-              <img
-                src={Logo}
-                style={{
-                  width: "25%",
-                }}
-              />
+              <a href="/">
+                <img
+                  src={Logo}
+                  style={{
+                    width: "25%",
+                  }}
+                />
+              </a>
             </div>
             <div style={{ width: "600px" }}>
               <TextField
@@ -104,54 +119,31 @@ function App() {
             </div>
             <div style={{ paddingTop: "60px" }}>
               <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/201"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
+                {moviesList &&
+                  moviesList.length > 0 &&
+                  moviesList.map((item) => {
+                    return (
+                      <Grid
+                        item
+                        xs={3}
+                        onClick={() => {
+                          navigation(`/movie/${item.id}`);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <img
+                          src="https://picsum.photos/300/201"
+                          style={{
+                            borderRadius: "6px",
+                          }}
+                        />
+                        <h3
+                          style={{ textAlign: "justify" }}
+                          dangerouslySetInnerHTML={{ __html: item.title }}
+                        />
+                      </Grid>
+                    );
+                  })}
               </Grid>
             </div>
           </div>
