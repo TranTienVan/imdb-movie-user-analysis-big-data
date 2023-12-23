@@ -7,3 +7,5 @@ crawlers/data
 scrape_reviews.ipynb
 scrape_users.ipynb
 *.csv
+recommenders
+insight_analysis.ipynb
