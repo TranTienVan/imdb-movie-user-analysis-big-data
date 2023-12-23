@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createRoot } from "react-dom/client";
 import MovieDetail from "./movie-detail";
+import Statistic from "./statistic";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "movie/:id",
     element: <MovieDetail />,
+  },
+  {
+    path: "statistic",
+    element: <Statistic />,
   },
 ]);
 

@@ -68,7 +68,7 @@ function App() {
     });
   };
 
-  const getRandomImage = () => {};
+const getRandomImage = () => {};
 
   useEffect(() => {
     getMoviesList();
@@ -82,11 +82,14 @@ function App() {
         style={{ paddingTop: "40px", paddingBottom: "40px" }}
       >
         <div className="container">
-          <div className="header-main" style={{ display: "flex" }}>
+          <div
+            className="header-main"
+            style={{ display: "flex", alignItems: "center" }}
+          >
             <div
               className="header-logo"
               style={{
-                width: "400px",
+                width: "300px",
               }}
             >
               <a href="/">
@@ -105,6 +108,17 @@ function App() {
                 variant="outlined"
                 style={{ width: "100%" }}
               />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                flex: 1,
+              }}
+            >
+              <Link to="/statistic" style={{ fontSize: "22px" }}>
+                Thống kê
+              </Link>
             </div>
           </div>
           <div className="reviewed-movies-list" style={{ paddingTop: "60px" }}>

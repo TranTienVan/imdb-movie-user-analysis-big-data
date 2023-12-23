@@ -70,7 +70,7 @@ const MovieDetail = () => {
             <div
               className="header-logo"
               style={{
-                width: "400px",
+                width: "300px",
               }}
             >
               <a href="/">
