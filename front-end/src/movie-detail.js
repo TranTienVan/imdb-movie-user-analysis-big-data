@@ -24,7 +24,7 @@ const MovieDetail = () => {
       ids: id,
     };
 
-    const res = await axios.get("http://42.117.27.86:8080/api/movies", {
+    const res = await axios.get("http://183.81.100.71:8080/api/movies", {
       params,
     });
 
@@ -37,7 +37,7 @@ const MovieDetail = () => {
     const params = {
       movie_ids: id,
     };
-    const res = await axios.get("http://42.117.27.86:8080/api/reviews", {
+    const res = await axios.get("http://183.81.100.71:8080/api/reviews", {
       params,
     });
     console.log("ndphong res 1", res);

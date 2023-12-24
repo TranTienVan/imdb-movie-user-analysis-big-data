@@ -42,7 +42,7 @@ function App() {
   const getMoviesList = async () => {
     try {
       const res = await axios.get(
-        "http://42.117.27.86:8080/api/movies?limit=1000&page=1"
+        "http://183.81.100.71:8080/api/movies?limit=1000&page=1"
       );
       console.log("ndphong res", res);
       if (res && res.data) {
@@ -68,7 +68,7 @@ function App() {
     });
   };
 
-const getRandomImage = () => {};
+  const getRandomImage = () => {};
 
   useEffect(() => {
     getMoviesList();
@@ -153,7 +153,7 @@ const getRandomImage = () => {};
                         />
                         <h3
                           style={{ textAlign: "justify" }}
-                          dangerouslySetInnerHTML={{ __html: item.title }}
+                          dangerouslySetInnerHTML={{ __html: item.movie_title }}
                         />
                       </Grid>
                     );

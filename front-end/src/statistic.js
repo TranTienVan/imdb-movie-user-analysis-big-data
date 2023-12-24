@@ -7,6 +7,13 @@ import { useParams, useNavigation } from "react-router-dom";
 import axios from "axios";
 import Avatar from "@mui/material/Avatar";
 import { deepOrange, deepPurple } from "@mui/material/colors";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 import {
   Chart as ChartJS,
@@ -30,7 +37,7 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
+export const reviewOptions = {
   responsive: true,
   plugins: {
     legend: {
@@ -38,26 +45,71 @@ export const options = {
     },
     title: {
       display: true,
-      text: "Biểu đồ thể hiện tổng số user đã review qua các năm",
+      text: "Biểu đồ thể hiện tổng số review qua các năm",
+    },
+  },
+};
+
+export const userOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top",
+    },
+    title: {
+      display: true,
+      text: "Biểu đồ thể hiện tổng số user mới qua các năm",
+    },
+  },
+};
+
+export const ratingOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top",
+    },
+    title: {
+      display: true,
+      text: "Biểu đồ thể hiện ratings trung bình qua các năm",
     },
   },
 };
 
 const Statistic = () => {
-    const [yearLabels, setYearLabels] = useState([]);
+  const [yearLabels, setYearLabels] = useState([]);
 
-    const [reviewsData, setReviewsData] = useState([]);
+  const [reviewsData, setReviewsData] = useState([]);
+
+  const [usersData, setUsersData] = useState([]);
+
+  const [ratingsData, setRatingsData] = useState([]);
+
+  const [users, setUsers] = useState(0);
+
+  const [movies, setMovies] = useState(0);
 
   const getStatistic = async () => {
     const res = await axios.get(
-      "http://42.117.27.86:8080/api/reviews/statistics?limit=100000&page=1"
+      "http://183.81.100.71:8080/api/reviews/statistics?limit=4000000"
     );
     console.log("ndphong res 1", res);
     if (res && res.data) {
       setYearLabels(res.data.time_line);
       setReviewsData(res.data.number_review_per_year);
+      setUsersData(res.data.number_new_user_per_year);
+
+      let avg_ratings = [];
+      for (var key in res.data.avg_ratings_per_year) {
+        avg_ratings.push(res.data.avg_ratings_per_year[key]);
+      }
+      setRatingsData(avg_ratings);
+      setUsers(res.data.number_user);
+      setMovies(res.data.number_film);
     }
   };
+
+  console.log("ndphong ratings data", ratingsData.length);
 
   useEffect(() => {
     getStatistic();
@@ -71,45 +123,97 @@ const Statistic = () => {
         style={{ paddingTop: "40px", paddingBottom: "40px" }}
       >
         <div className="container">
-          <div className="header-main" style={{ display: "flex" }}>
-            <div
-              className="header-logo"
-              style={{
-                width: "300px",
-              }}
-            >
-              <a href="/">
-                <img
-                  src={Logo}
-                  style={{
-                    width: "25%",
-                  }}
-                />
-              </a>
-            </div>
-            <div style={{ width: "600px" }}>
-              <TextField
-                id="outlined-basic"
-                label="Nhập tên phim"
-                variant="outlined"
-                style={{ width: "100%" }}
+          <h1>Dashboard</h1>
+
+          <Grid container spacing={6}>
+            <Grid item xs={6}>
+              <Line
+                options={userOptions}
+                data={{
+                  labels: yearLabels,
+                  datasets: [
+                    {
+                      label: "Số user",
+                      data: usersData,
+                      borderColor: "rgb(53, 162, 235)",
+                      backgroundColor: "rgba(53, 162, 235, 0.5)",
+                    },
+                  ],
+                }}
               />
-            </div>
-          </div>
-          <Line
-            options={options}
-            data={{
-              labels: yearLabels,
-              datasets: [
-                {
-                  label: "Số user",
-                  data: reviewsData,
-                  borderColor: "rgb(255, 99, 132)",
-                  backgroundColor: "rgba(255, 99, 132, 0.5)",
-                },
-              ],
-            }}
-          />
+            </Grid>
+            <Grid item xs={6}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <Card sx={{ width: "50%" }}>
+                  <CardContent>
+                    <Typography
+                      sx={{ fontSize: 24 }}
+                      color="primary"
+                      gutterBottom
+                    >
+                      Số lượng Users
+                    </Typography>
+                    <Typography variant="h5" component="div">
+                      {users}
+                    </Typography>
+                  </CardContent>
+                </Card>
+                <Card sx={{ width: "50%" }}>
+                  <CardContent>
+                    <Typography
+                      sx={{ fontSize: 24 }}
+                      color="primary"
+                      gutterBottom
+                    >
+                      Số lượng Movies
+                    </Typography>
+                    <Typography variant="h5" component="div">
+                      {movies}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </div>
+            </Grid>
+            <Grid item xs={6}>
+              <Line
+                options={reviewOptions}
+                data={{
+                  labels: yearLabels,
+                  datasets: [
+                    {
+                      label: "Số review",
+                      data: reviewsData,
+                      borderColor: "rgb(255, 99, 132)",
+                      backgroundColor: "rgba(255, 99, 132, 0.5)",
+                    },
+                  ],
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Line
+                options={ratingOptions}
+                data={{
+                  labels: yearLabels,
+                  datasets: [
+                    {
+                      label: "Ratings trung bình",
+                      data: ratingsData,
+                      borderColor: "rgba(255, 206, 86, 1)",
+                      backgroundColor: "rgba(255, 206, 86, 0.2)",
+                    },
+                  ],
+                }}
+              />
+            </Grid>
+          </Grid>
         </div>
       </div>
     </div>
