@@ -24,7 +24,6 @@ print("Loaded movies_df")
 
 ###
 reviews_df = pd.read_csv("./data/reviews.csv")
-reviews_df = reviews_df[~reviews_df['ratings'].isna()]
 reviews_df['date_review'] = pd.to_datetime(reviews_df['date_review'], format='%d %B %Y')
 reviews_df['ratings'] = reviews_df['ratings'].apply(pd.to_numeric, errors='coerce')
 reviews_df['year'] = reviews_df['date_review'].dt.year
@@ -33,6 +32,7 @@ print("Loaded reviews_df")
 ###
 test_movies_df = movies_df.iloc[:50000]
 test_reviews_df = reviews_df.iloc[:100000]
+test_reviews_df = test_reviews_df[~test_reviews_df['ratings'].isna()]
 reviews_movies_df = pd.merge(test_reviews_df, test_movies_df, how='inner', left_on='movie_id', right_on="id")
 refined_dataset = reviews_movies_df.groupby(by=['user_id_review','movie_title'], as_index=False).agg({"ratings":"mean"})
 user_enc = LabelEncoder()
