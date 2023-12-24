@@ -46,6 +46,10 @@ const MovieDetail = () => {
     }
   };
 
+  const handleHoverReview = (content) => {
+    console.log("content", content);
+  };
+
   useEffect(() => {
     if (movie && movie.id) {
       getMovieReviews(movie.id);
@@ -183,7 +187,13 @@ const MovieDetail = () => {
                             <p style={{ fontWeight: "bold" }}>
                               {review.user_review}
                             </p>
-                            <p>{review.description}</p>
+                            <p
+                              onMouseOver={() => {
+                                handleHoverReview(review.description);
+                              }}
+                            >
+                              {review.description}
+                            </p>
                           </div>
                         </div>
                       );
