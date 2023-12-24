@@ -1,12 +1,16 @@
 from flask_openapi3 import APIBlueprint, Tag
 from bson.json_util import dumps
 from flask import request  # Import the 'request' object
-from app.config.settings import reviews_df
-from app.api.reviews.statistics_data import *
+from app.config.settings import reviews_df, sia
 
+from app.api.reviews.statistics_data import *
 tag = Tag(name="reviews", description="Movie Operation")
 
 reviews_route = APIBlueprint("reviews", __name__, abp_tags=[tag], url_prefix="/api")
+
+def get_sentiment(sia, sentence):
+    sentiment = sia.polarity_scores(sentence)
+    return sentiment
 
 @reviews_route.get("/reviews")
 def reviews_job():
@@ -40,20 +44,6 @@ def reviews_job():
 
     # Return the paginated data
     return dumps(data), 200
-
-@reviews_route.get("/reviews/sentiment")
-def reviews_sentiment_job():
-    # Get the values of page and per_page from the query parameters
-    ids = request.args.get('ids')
-    list_ids = ids.split(",")
-    data = reviews_df[reviews_df["id"].isin(list_ids)].to_dict("records")
-
-    # Solve sentiment analysis
-    data = [{**d, "sentiment": 1} for d in data]
-
-    # Return the paginated data
-    return dumps(data), 200
-
 
 @reviews_route.get("/reviews/chart_1")
 def char_1_job():
@@ -178,3 +168,13 @@ def statistics_job():
     result_data = statistics(data)
     # Return the paginated data
     return dumps(result_data), 200
+
+
+@reviews_route.get("/reviews/sentiment")
+def sentiment_job():
+    # Get the values of page and per_page from the query parameters
+    text = request.args.get('text', 1)
+    sentiment = get_sentiment(sia, text)
+
+    # Return the paginated data
+    return dumps(sentiment), 200

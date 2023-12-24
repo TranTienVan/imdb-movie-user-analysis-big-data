@@ -3,6 +3,10 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import tensorflow as tf
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
+nltk.download('vader_lexicon')
+sia = SentimentIntensityAnalyzer()
 
 class Settings(BaseSettings):
     DEBUG: bool = False
@@ -24,10 +28,12 @@ reviews_df = reviews_df[~reviews_df['ratings'].isna()]
 reviews_df['date_review'] = pd.to_datetime(reviews_df['date_review'], format='%d %B %Y')
 reviews_df['ratings'] = reviews_df['ratings'].apply(pd.to_numeric, errors='coerce')
 reviews_df['year'] = reviews_df['date_review'].dt.year
-reviews_movies_df = pd.merge(reviews_df, movies_df, how='inner', left_on='movie_id', right_on="id")
 print("Loaded reviews_df")
 
 ###
+test_movies_df = movies_df.iloc[:50000]
+test_reviews_df = reviews_df.iloc[:100000]
+reviews_movies_df = pd.merge(test_reviews_df, test_movies_df, how='inner', left_on='movie_id', right_on="id")
 refined_dataset = reviews_movies_df.groupby(by=['user_id_review','movie_title'], as_index=False).agg({"ratings":"mean"})
 user_enc = LabelEncoder()
 refined_dataset['user'] = user_enc.fit_transform(refined_dataset['user_id_review'].values)
