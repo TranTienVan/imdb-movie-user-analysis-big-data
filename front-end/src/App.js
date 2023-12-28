@@ -21,15 +21,41 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import Checkbox from "@mui/material/Checkbox";
+import InputLabel from "@mui/material/InputLabel";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import { MenuProps, options } from "./utils";
 
 function App() {
   const navigation = useNavigate();
 
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+
+  const [isOpenOnboard, setIsOpenOnboard] = React.useState(true);
 
   const [userId, setUserId] = useState("");
 
   const [moviesList, setMovieList] = useState([]);
+
+  const [gender, setGender] = useState("female");
+
+  const [age, setAge] = useState("less_18");
+
+  const handleChangeGender = (e) => {
+    setGender(e.target.value);
+  };
+
+  const handleChangeAge = (e) => {
+    setAge(e.target.value);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -37,6 +63,10 @@ function App() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleCloseOnboard = () => {
+    setIsOpenOnboard(false);
   };
 
   const getMoviesList = async () => {
@@ -68,7 +98,19 @@ function App() {
     });
   };
 
-  const getRandomImage = () => {};
+  // const classes = useStyles();
+  const [selected, setSelected] = useState([]);
+  const isAllSelected =
+    options.length > 0 && selected.length === options.length;
+
+  const handleChange = (event) => {
+    const value = event.target.value;
+    if (value[value.length - 1] === "all") {
+      setSelected(selected.length === options.length ? [] : options);
+      return;
+    }
+    setSelected(value);
+  };
 
   useEffect(() => {
     getMoviesList();
@@ -224,6 +266,129 @@ function App() {
               </Grid>
             </div>
           </div>
+          <Dialog open={isOpenOnboard} onClose={handleCloseOnboard} maxWidth>
+            <DialogTitle>Onboarding</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Để có được trải nghiệm xem phim tốt nhất, bạn vui lòng hoàn
+                thành những sở thích xem phim của mình
+              </DialogContentText>
+              <div style={{ marginTop: "20px" }}>
+                <FormControl>
+                  <FormLabel id="demo-controlled-radio-buttons-group">
+                    Giới tính
+                  </FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={gender}
+                    onChange={handleChangeGender}
+                    style={{ display: "flex", flexDirection: "row" }}
+                  >
+                    <FormControlLabel
+                      value="female"
+                      control={<Radio />}
+                      label="Nữ"
+                    />
+                    <FormControlLabel
+                      value="male"
+                      control={<Radio />}
+                      label="Nam"
+                    />
+                    <FormControlLabel
+                      value="private_gender"
+                      control={<Radio />}
+                      label="Riêng tư"
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </div>
+              <div style={{ marginTop: "20px" }}>
+                <FormControl>
+                  <FormLabel id="demo-controlled-radio-buttons-group">
+                    Độ tuổi
+                  </FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={age}
+                    onChange={handleChangeAge}
+                    style={{ display: "flex", flexDirection: "row" }}
+                  >
+                    <FormControlLabel
+                      value="less_18"
+                      control={<Radio />}
+                      label="Dưới 18"
+                    />
+                    <FormControlLabel
+                      value="18_30"
+                      control={<Radio />}
+                      label="18 - 30"
+                    />
+                    <FormControlLabel
+                      value="31_50"
+                      control={<Radio />}
+                      label="31 - 50"
+                    />
+                    <FormControlLabel
+                      value="more_50"
+                      control={<Radio />}
+                      label="Trên 50"
+                    />
+                    <FormControlLabel
+                      value="private_age"
+                      control={<Radio />}
+                      label="Riêng tư"
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </div>
+              <div style={{ marginTop: "20px" }}>
+                <FormControl
+                  style={{
+                    width: "360px",
+                  }}
+                >
+                  <InputLabel id="mutiple-select-label">
+                    Chủ đề quan tâm
+                  </InputLabel>
+                  <Select
+                    labelId="mutiple-select-label"
+                    multiple
+                    value={selected}
+                    onChange={handleChange}
+                    renderValue={(selected) => selected.join(", ")}
+                    MenuProps={MenuProps}
+                  >
+                    <MenuItem value="all">
+                      <ListItemIcon>
+                        <Checkbox
+                          checked={isAllSelected}
+                          indeterminate={
+                            selected.length > 0 &&
+                            selected.length < options.length
+                          }
+                        />
+                      </ListItemIcon>
+                      <ListItemText primary="Chọn tất cả" />
+                    </MenuItem>
+                    {options.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        <ListItemIcon>
+                          <Checkbox checked={selected.indexOf(option) > -1} />
+                        </ListItemIcon>
+                        <ListItemText primary={option} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseOnboard}>Đóng</Button>
+              <Button onClick={handleLogin}>Tiếp tục</Button>
+            </DialogActions>
+          </Dialog>
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Đăng nhập</DialogTitle>
             <DialogContent>
