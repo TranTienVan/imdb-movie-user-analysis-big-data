@@ -20,16 +20,12 @@ const MenuProps = {
 };
 
 const options = [
-  "Oliver Hansen",
-  "Van Henry",
-  "April Tucker",
-  "Ralph Hubbard",
-  "Omar Alexander",
-  "Carlos Abbott",
-  "Miriam Wagner",
-  "Bradley Wilkerson",
-  "Virginia Andrews",
-  "Kelly Snyder",
+  "Hành động",
+  "Hoạt hình",
+  "Tình cảm",
+  "Kinh dị",
+  "Khoa học viễn tưởng",
+  "Hài",
 ];
 
 export { MenuProps, options };

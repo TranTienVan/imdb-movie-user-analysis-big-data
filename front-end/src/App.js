@@ -7,6 +7,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
@@ -33,13 +34,27 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import { MenuProps, options } from "./utils";
+import { Typography } from "@mui/material";
+// import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function App() {
+  // const data = localStorage.getItem("data");
+  // setData(JSON.parse(data));
+
   const navigation = useNavigate();
 
-  const [open, setOpen] = React.useState(false);
+  const [data, setData] = React.useState(
+    JSON.parse(localStorage.getItem("data"))
+  );
 
-  const [isOpenOnboard, setIsOpenOnboard] = React.useState(true);
+  const [open, setOpen] = React.useState(
+    data && Object.keys(data).length > 0 ? false : true
+  );
+
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const [isOpenOnboard, setIsOpenOnboard] = React.useState(false);
 
   const [userId, setUserId] = useState("");
 
@@ -49,12 +64,18 @@ function App() {
 
   const [age, setAge] = useState("less_18");
 
+  const [rating, setRating] = useState("more_8");
+
   const handleChangeGender = (e) => {
     setGender(e.target.value);
   };
 
   const handleChangeAge = (e) => {
     setAge(e.target.value);
+  };
+
+  const handleChangeRating = (e) => {
+    setRating(e.target.value);
   };
 
   const handleClickOpen = () => {
@@ -71,21 +92,23 @@ function App() {
 
   const getMoviesList = async () => {
     try {
+      setIsLoading(true);
       const res = await axios.get(
         "http://183.81.100.71:8080/api/movies?limit=1000&page=1"
       );
-      console.log("ndphong res", res);
       if (res && res.data) {
         setMovieList(res.data);
+        setIsLoading(false);
       }
     } catch (error) {
-      console.log("ndphong error", error);
+      setIsLoading(false);
     }
   };
 
   const handleLogin = () => {
     handleClose();
     localStorage.setItem("user_id", userId);
+    localStorage.removeItem("data");
     toast("🦄 Đăng nhập thành công", {
       position: "top-right",
       autoClose: 5000,
@@ -112,9 +135,32 @@ function App() {
     setSelected(value);
   };
 
+  const handleSaveInfor = () => {
+    const data = {
+      age,
+      gender,
+      rating,
+      selected,
+    };
+    console.log("data", data);
+    localStorage.setItem("data", JSON.stringify(data));
+    handleCloseOnboard();
+  };
+
   useEffect(() => {
-    getMoviesList();
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      setUserId(userId);
+    }
   }, []);
+
+  console.log("ndphong data", data);
+
+  useEffect(() => {
+    if (!open && !isOpenOnboard) {
+      getMoviesList();
+    }
+  }, [open, isOpenOnboard]);
 
   return (
     <div>
@@ -151,7 +197,7 @@ function App() {
                 style={{ width: "100%" }}
               />
             </div>
-            <div
+            {/* <div
               style={{
                 display: "flex",
                 justifyContent: "flex-end",
@@ -161,59 +207,125 @@ function App() {
               <Link to="/statistic" style={{ fontSize: "22px" }}>
                 Thống kê
               </Link>
+            </div> */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                flex: 1,
+              }}
+            >
+              {userId ? (
+                <Link
+                  to="#"
+                  style={{ fontSize: "22px" }}
+                  onClick={() => {
+                    setOpen(true);
+                    localStorage.removeItem("data");
+                    localStorage.removeItem("user_id");
+                  }}
+                >
+                  Đăng xuất
+                </Link>
+              ) : (
+                <Link
+                  to="#"
+                  style={{ fontSize: "22px" }}
+                  onClick={() => {
+                    setOpen(true);
+                  }}
+                >
+                  Đăng nhập
+                </Link>
+              )}
             </div>
           </div>
-          <div className="reviewed-movies-list" style={{ paddingTop: "60px" }}>
-            <div>
-              <h2
+          {isLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                marginTop: "120px",
+              }}
+            >
+              <div
                 style={{
-                  textTransform: "uppercase",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "12px",
                 }}
               >
-                Phim đã xem
-              </h2>
-            </div>
-            <div style={{ paddingTop: "60px" }}>
-              <Grid container spacing={2}>
-                {moviesList &&
-                  moviesList.length > 0 &&
-                  moviesList.map((item) => {
-                    return (
-                      <Grid
-                        item
-                        xs={3}
-                        onClick={() => {
-                          navigation(`/movie/${item.id}`);
-                        }}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <img
-                          src="https://picsum.photos/300/201"
-                          style={{
-                            borderRadius: "6px",
-                          }}
-                        />
-                        <h3
-                          style={{ textAlign: "justify" }}
-                          dangerouslySetInnerHTML={{ __html: item.movie_title }}
-                        />
-                      </Grid>
-                    );
-                  })}
-              </Grid>
-            </div>
-          </div>
-          <div className="reviewed-movies-list" style={{ paddingTop: "60px" }}>
-            <div>
-              <h2
-                style={{
-                  textTransform: "uppercase",
-                }}
+                <Typography>Đang tải dữ liệu</Typography>
+                <CircularProgress />
+              </div>
+            </Box>
+          ) : (
+            <div
+              style={{
+                display: !open && !isOpenOnboard ? "block" : "none",
+              }}
+            >
+              <div
+                className="reviewed-movies-list"
+                style={{ paddingTop: "60px" }}
               >
-                Phim liên quan
-              </h2>
-            </div>
-            <div style={{ paddingTop: "60px" }}>
+                <div>
+                  <h2
+                    style={{
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Phim đã xem
+                  </h2>
+                </div>
+                <div style={{ paddingTop: "60px" }}>
+                  <Grid container spacing={2}>
+                    {moviesList &&
+                      moviesList.length > 0 &&
+                      moviesList.map((item) => {
+                        return (
+                          <Grid
+                            item
+                            xs={3}
+                            onClick={() => {
+                              navigation(`/movie/${item.id}`);
+                            }}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <img
+                              src="https://picsum.photos/300/201"
+                              style={{
+                                borderRadius: "6px",
+                              }}
+                            />
+                            <h3
+                              style={{ textAlign: "justify" }}
+                              dangerouslySetInnerHTML={{
+                                __html: item.movie_title,
+                              }}
+                            />
+                          </Grid>
+                        );
+                      })}
+                  </Grid>
+                </div>
+              </div>
+              <div
+                className="reviewed-movies-list"
+                style={{ paddingTop: "60px" }}
+              >
+                <div>
+                  <h2
+                    style={{
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Phim liên quan
+                  </h2>
+                </div>
+                {/* <div style={{ paddingTop: "60px" }}>
               <Grid container spacing={2}>
                 <Grid item xs={3}>
                   <img
@@ -227,49 +339,29 @@ function App() {
                     Anh Đây Remix
                   </h3>
                 </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/201"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
               </Grid>
+            </div> */}
+              </div>
             </div>
-          </div>
+          )}
+
           <Dialog open={isOpenOnboard} onClose={handleCloseOnboard} maxWidth>
-            <DialogTitle>Onboarding</DialogTitle>
+            {/* <DialogTitle>Onboarding</DialogTitle> */}
             <DialogContent>
-              <DialogContentText>
+              <Typography
+                color="primary"
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setOpen(true);
+                  setIsOpenOnboard(false);
+                }}
+              >
+                {/* <ArrowBackIcon /> */}
+                Trở lại
+              </Typography>
+              <DialogContentText style={{ fontSize: "18px" }}>
                 Để có được trải nghiệm xem phim tốt nhất, bạn vui lòng hoàn
                 thành những sở thích xem phim của mình
               </DialogContentText>
@@ -350,7 +442,7 @@ function App() {
                   }}
                 >
                   <InputLabel id="mutiple-select-label">
-                    Chủ đề quan tâm
+                    Thể loại yêu thích
                   </InputLabel>
                   <Select
                     labelId="mutiple-select-label"
@@ -383,24 +475,60 @@ function App() {
                   </Select>
                 </FormControl>
               </div>
+
+              <div style={{ marginTop: "20px" }}>
+                <FormControl>
+                  <FormLabel id="demo-controlled-radio-buttons-group">
+                    Bạn muốn xem những phim có đánh giá thế nào?
+                  </FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
+                    value={rating}
+                    onChange={handleChangeRating}
+                    style={{ display: "flex", flexDirection: "row" }}
+                  >
+                    <FormControlLabel
+                      value="more_8"
+                      control={<Radio />}
+                      label="Trên 8 điểm"
+                    />
+                    <FormControlLabel
+                      value="more_6"
+                      control={<Radio />}
+                      label="Trên 6 điểm"
+                    />
+                    <FormControlLabel
+                      value="skip"
+                      control={<Radio />}
+                      label="Bỏ qua"
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </div>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseOnboard}>Đóng</Button>
-              <Button onClick={handleLogin}>Tiếp tục</Button>
+              <Button
+                onClick={() => {
+                  handleCloseOnboard();
+                  setData(null);
+                  localStorage.removeItem("data");
+                }}
+              >
+                Bỏ qua
+              </Button>
+              <Button onClick={handleSaveInfor}>Tiếp tục</Button>
             </DialogActions>
           </Dialog>
-          <Dialog open={open} onClose={handleClose}>
+          <Dialog open={open} onClose={handleClose} fullWidth>
             <DialogTitle>Đăng nhập</DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                Để có được trải nghiệm xem phim tốt nhất, bạn vui lòng điền
-                thông tin đăng nhập của mình vào form.
-              </DialogContentText>
+              <DialogContentText>Tên đăng nhập</DialogContentText>
               <TextField
                 autoFocus
                 margin="dense"
                 id="name"
-                label="User ID"
+                label="Nhập tên đăng nhập"
                 type="email"
                 fullWidth
                 variant="standard"
@@ -408,10 +536,36 @@ function App() {
                   setUserId(e.target.value);
                 }}
               />
+              <div
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  gap: "12px",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography>Chưa có tài khoản?</Typography>
+                <Typography
+                  color="primary"
+                  style={{
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }}
+                  onClick={() => {
+                    setOpen(false);
+                    setIsOpenOnboard(true);
+                    setUserId("");
+                  }}
+                >
+                  Tiếp tục với vai trò Khách
+                </Typography>
+              </div>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Đóng</Button>
-              <Button onClick={handleLogin}>Tiếp tục</Button>
+              <Button disabled={!userId} onClick={handleLogin}>
+                Tiếp tục
+              </Button>
             </DialogActions>
           </Dialog>
         </div>
