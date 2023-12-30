@@ -59,26 +59,6 @@ export const options = {
   },
 };
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Dataset 1",
-      data: labels.map(() => Math.floor(Math.random() * (100 - 50 + 1)) + 50),
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-    {
-      label: "Dataset 2",
-      data: labels.map(() => Math.floor(Math.random() * (100 - 50 + 1)) + 50),
-      borderColor: "rgb(53, 162, 235)",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },
-  ],
-};
-
 const MovieDetail = () => {
   const { id } = useParams();
 
@@ -95,6 +75,10 @@ const MovieDetail = () => {
   const [currentSentiment, setCurrentSentiment] = useState({});
 
   const [recommenedList, setRecommenedList] = useState([]);
+
+  const [currentUserRecommendedList, setCurrentUserRecommendedList] = useState(
+    []
+  );
 
   const handleClose = () => {
     setIsOpenModal(false);
@@ -150,11 +134,15 @@ const MovieDetail = () => {
     }
   };
 
-  const getRecommendationMovies = async (id) => {
+  const getRecommendationMovies = async (
+    id,
+    isCurrentStorage = false,
+    nMovie = 10
+  ) => {
     try {
       const params = {
         id: id,
-        n_movies: 10,
+        n_movies: nMovie,
       };
 
       const res = await axios.get(
@@ -165,7 +153,11 @@ const MovieDetail = () => {
       );
       console.log("ndphong res3", res);
       if (res && res.data) {
-        setRecommenedList(res.data);
+        if (!isCurrentStorage) {
+          setRecommenedList(res.data);
+        } else {
+          setCurrentUserRecommendedList(res.data);
+        }
       }
     } catch (error) {
       console.log("ndphong error", error);
@@ -194,6 +186,12 @@ const MovieDetail = () => {
       getMovieDetail(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (localStorage.getItem("user_id")) {
+      getRecommendationMovies(localStorage.getItem("user_id"), true, 5);
+    }
+  }, []);
 
   return (
     <div>
@@ -252,42 +250,21 @@ const MovieDetail = () => {
                     gap: "12px",
                   }}
                 >
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <img
-                      src="https://picsum.photos/120/66"
-                      style={{
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <h3>Phim liên quan</h3>
-                  </div>
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <img
-                      src="https://picsum.photos/120/66"
-                      style={{
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <h3>Phim liên quan</h3>
-                  </div>
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <img
-                      src="https://picsum.photos/120/66"
-                      style={{
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <h3>Phim liên quan</h3>
-                  </div>
-                  <div style={{ display: "flex", gap: "12px" }}>
-                    <img
-                      src="https://picsum.photos/120/66"
-                      style={{
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <h3>Phim liên quan</h3>
-                  </div>
+                  {currentUserRecommendedList &&
+                    currentUserRecommendedList.length > 0 &&
+                    currentUserRecommendedList.map((item) => {
+                      return (
+                        <div style={{ display: "flex", gap: "12px" }}>
+                          <img
+                            src="https://picsum.photos/120/66"
+                            style={{
+                              borderRadius: "6px",
+                            }}
+                          />
+                          <h3>{item.movie}</h3>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>
@@ -359,11 +336,11 @@ const MovieDetail = () => {
                         labels: ["Neg", "Neu", "Pos"],
                         datasets: [
                           {
-                            label: "Sentiment percentage",
+                            label: "%",
                             data: [
-                              currentSentiment.neg,
-                              currentSentiment.neu,
-                              currentSentiment.pos,
+                              currentSentiment.neg * 100,
+                              currentSentiment.neu * 100,
+                              currentSentiment.pos * 100,
                             ],
                             backgroundColor: [
                               "rgba(255, 99, 132, 0.2)",
