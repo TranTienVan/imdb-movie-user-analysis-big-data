@@ -33,10 +33,20 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { MenuProps, options } from "./utils";
+import { MenuProps, cateOptions } from "./utils";
 import { Typography } from "@mui/material";
 // import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CircularProgress from "@mui/material/CircularProgress";
+import SearchIcon from "@mui/icons-material/Search";
+import Input from "@mui/material/Input";
+import FilledInput from "@mui/material/FilledInput";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormHelperText from "@mui/material/FormHelperText";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import IconButton from "@mui/material/IconButton";
+import { ImageUrls } from "./csvjson";
 
 function App() {
   // const data = localStorage.getItem("data");
@@ -49,22 +59,32 @@ function App() {
   );
 
   const [open, setOpen] = React.useState(
-    data && Object.keys(data).length > 0 ? false : true
+    (data && Object.keys(data).length > 0) || localStorage.getItem("is_skipped")
+      ? false
+      : true
   );
 
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [isOpenOnboard, setIsOpenOnboard] = React.useState(false);
 
+  const [isSkipped, setIsSkipped] = React.useState(false);
+
   const [userId, setUserId] = useState("");
 
   const [moviesList, setMovieList] = useState([]);
+
+  const [actorsList, setActorsList] = useState([]);
 
   const [gender, setGender] = useState("female");
 
   const [age, setAge] = useState("less_18");
 
   const [rating, setRating] = useState("more_8");
+
+  const [searchType, setSearchType] = useState("keyword");
+
+  const [searchContent, setSearchContent] = useState("");
 
   const handleChangeGender = (e) => {
     setGender(e.target.value);
@@ -90,14 +110,62 @@ function App() {
     setIsOpenOnboard(false);
   };
 
-  const getMoviesList = async () => {
+  const getSearchList = async (data, n_movies = 100) => {
     try {
       setIsLoading(true);
       const res = await axios.get(
-        "http://183.81.100.71:8080/api/movies?limit=1000&page=1"
+        "http://183.81.100.71:8080/api/movies/search",
+        {
+          params: {
+            ...data,
+            n_movies,
+          },
+        }
       );
       if (res && res.data) {
         setMovieList(res.data);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
+
+  const getMoviesList = async (data, n_movies = 100, isSkipped = false) => {
+    try {
+      setIsLoading(true);
+      let categoriesList = "";
+      cateOptions &&
+        cateOptions.forEach((item, index) => {
+          if (index !== cateOptions.length - 1) categoriesList += item + ";";
+          else {
+            categoriesList += item;
+          }
+        });
+      const res = await axios.get(
+        "http://183.81.100.71:8080/api/users/recommend",
+        {
+          params: !localStorage.getItem("is_skipped")
+            ? {
+                ...data,
+                n_movies: 100,
+              }
+            : {
+                categories: categoriesList,
+                n_movies: 100,
+              },
+        }
+      );
+      if (res && res.data) {
+        let tempMoviesList = res.data.map((item) => {
+          const randomIndex = Math.floor(Math.random() * (3000 - 0 + 1)) + 0;
+          return {
+            ...item,
+            urlIndex: randomIndex,
+          };
+        });
+
+        setMovieList(tempMoviesList);
         setIsLoading(false);
       }
     } catch (error) {
@@ -122,29 +190,71 @@ function App() {
   };
 
   // const classes = useStyles();
-  const [selected, setSelected] = useState([]);
+  const [categories, setCategories] = useState([]);
   const isAllSelected =
-    options.length > 0 && selected.length === options.length;
+    cateOptions.length > 0 && categories.length === cateOptions.length;
 
   const handleChange = (event) => {
     const value = event.target.value;
     if (value[value.length - 1] === "all") {
-      setSelected(selected.length === options.length ? [] : options);
+      setCategories(
+        categories.length === cateOptions.length ? [] : cateOptions
+      );
       return;
     }
-    setSelected(value);
+    setCategories(value);
   };
 
   const handleSaveInfor = () => {
+    let categoriesList = "";
+    categories &&
+      categories.forEach((item, index) => {
+        if (index !== categories.length - 1) categoriesList += item + ";";
+        else {
+          categoriesList += item;
+        }
+      });
     const data = {
-      age,
-      gender,
-      rating,
-      selected,
+      age: age !== "private_age" ? age : null,
+      gender: gender !== "private_gender" ? age : null,
+      min_number_of_ratings:
+        rating === "more_8" ? 8 : rating === "more_6" ? 6 : null,
+      categories: categoriesList,
     };
-    console.log("data", data);
+    console.log("post data", data);
     localStorage.setItem("data", JSON.stringify(data));
     handleCloseOnboard();
+  };
+
+  const handleSearch = (e) => {
+    console.log(searchContent);
+    if (searchContent) {
+      let tempData = JSON.parse(localStorage.getItem("data"));
+      // let searchObj = {};
+      let searchObj = JSON.parse(localStorage.getItem("search_obj")) || {};
+
+      console.log("ndphong searchObj", searchObj);
+      if (searchObj[searchType]) {
+        searchObj[searchType] += ";" + searchContent;
+      } else {
+        searchObj[searchType] = searchContent;
+      }
+
+      // searchObj[searchType] = localStorage.getItem("")
+      localStorage.setItem("search_obj", JSON.stringify(searchObj));
+
+      console.log("tempData", tempData);
+      // console.log("searchObj", searchObj);
+      if (searchType == "keyword") {
+        tempData.keyword = searchContent;
+      } else if (searchType == "actor_names") {
+        tempData.actor_names = searchContent;
+      } else if (searchType == "director_name") {
+        tempData.director_names = searchContent;
+      }
+      console.log("ndphong update data", tempData);
+      getSearchList(tempData);
+    }
   };
 
   useEffect(() => {
@@ -157,8 +267,10 @@ function App() {
   console.log("ndphong data", data);
 
   useEffect(() => {
-    if (!open && !isOpenOnboard) {
-      getMoviesList();
+    if (!open && !isOpenOnboard && !isSkipped) {
+      getMoviesList({
+        ...JSON.parse(localStorage.getItem("data")),
+      });
     }
   }, [open, isOpenOnboard]);
 
@@ -189,13 +301,66 @@ function App() {
                 />
               </a>
             </div>
-            <div style={{ width: "600px" }}>
-              <TextField
+            <div
+              style={{ width: "600px", display: "flex", alignItems: "center" }}
+            >
+              <FormControl style={{ width: "200px" }}>
+                <InputLabel id="demo-simple-select-label">Menu</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={searchType}
+                  label="Tên phim"
+                  onChange={(e) => {
+                    setSearchType(e.target.value);
+                  }}
+                >
+                  <MenuItem value="keyword" style={{ width: "200px" }}>
+                    Tên phim
+                  </MenuItem>
+                  <MenuItem value="actor_names" style={{ width: "200px" }}>
+                    Diễn viên
+                  </MenuItem>
+                  <MenuItem value="director_names" style={{ width: "200px" }}>
+                    Đạo diễn
+                  </MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* <TextField
                 id="outlined-basic"
-                label="Nhập tên phim"
+                label="Nhập nội dung tìm kiếm"
                 variant="outlined"
                 style={{ width: "100%" }}
-              />
+              /> */}
+
+              <FormControl sx={{ m: 1, width: "400px" }} variant="outlined">
+                <InputLabel htmlFor="filled-adornment-password">
+                  Nhập nội dung
+                </InputLabel>
+                <OutlinedInput
+                  id="filled-adornment-password"
+                  type={"text"}
+                  onChange={(e) => {
+                    console.log(e.target.value);
+                    setSearchContent(e.target.value);
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <SearchIcon
+                        aria-label="toggle password visibility"
+                        onClick={(e) => {
+                          handleSearch();
+                        }}
+                        edge="end"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <VisibilityOff />
+                      </SearchIcon>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
             </div>
             {/* <div
               style={{
@@ -277,11 +442,11 @@ function App() {
                       textTransform: "uppercase",
                     }}
                   >
-                    Phim đã xem
+                    Phim Liên quan
                   </h2>
                 </div>
                 <div style={{ paddingTop: "60px" }}>
-                  <Grid container spacing={2}>
+                  <Grid container spacing={6}>
                     {moviesList &&
                       moviesList.length > 0 &&
                       moviesList.map((item) => {
@@ -295,15 +460,17 @@ function App() {
                             style={{ cursor: "pointer" }}
                           >
                             <img
-                              src="https://picsum.photos/300/201"
+                              src={ImageUrls[item.urlIndex].image}
                               style={{
                                 borderRadius: "6px",
+                                height: "300px",
                               }}
                             />
+
                             <h3
                               style={{ textAlign: "justify" }}
                               dangerouslySetInnerHTML={{
-                                __html: item.movie_title,
+                                __html: item.movie_title || item.movie,
                               }}
                             />
                           </Grid>
@@ -311,36 +478,6 @@ function App() {
                       })}
                   </Grid>
                 </div>
-              </div>
-              <div
-                className="reviewed-movies-list"
-                style={{ paddingTop: "60px" }}
-              >
-                <div>
-                  <h2
-                    style={{
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Phim liên quan
-                  </h2>
-                </div>
-                {/* <div style={{ paddingTop: "60px" }}>
-              <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <img
-                    src="https://picsum.photos/300/200"
-                    style={{
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <h3 style={{ textAlign: "justify" }}>
-                    Mất Trăm Năm Đôi Mình Mới Chung Thuyền Remix, Đừng Lo Nhé Có
-                    Anh Đây Remix
-                  </h3>
-                </Grid>
-              </Grid>
-            </div> */}
               </div>
             </div>
           )}
@@ -447,9 +584,9 @@ function App() {
                   <Select
                     labelId="mutiple-select-label"
                     multiple
-                    value={selected}
+                    value={categories}
                     onChange={handleChange}
-                    renderValue={(selected) => selected.join(", ")}
+                    renderValue={(categories) => categories.join(", ")}
                     MenuProps={MenuProps}
                   >
                     <MenuItem value="all">
@@ -457,17 +594,17 @@ function App() {
                         <Checkbox
                           checked={isAllSelected}
                           indeterminate={
-                            selected.length > 0 &&
-                            selected.length < options.length
+                            categories.length > 0 &&
+                            categories.length < cateOptions.length
                           }
                         />
                       </ListItemIcon>
                       <ListItemText primary="Chọn tất cả" />
                     </MenuItem>
-                    {options.map((option) => (
+                    {cateOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         <ListItemIcon>
-                          <Checkbox checked={selected.indexOf(option) > -1} />
+                          <Checkbox checked={categories.indexOf(option) > -1} />
                         </ListItemIcon>
                         <ListItemText primary={option} />
                       </MenuItem>
@@ -513,6 +650,7 @@ function App() {
                   handleCloseOnboard();
                   setData(null);
                   localStorage.removeItem("data");
+                  localStorage.removeItem("search_obj");
                 }}
               >
                 Bỏ qua
@@ -562,7 +700,16 @@ function App() {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose}>Đóng</Button>
+              <Button
+                onClick={() => {
+                  handleClose();
+                  setIsSkipped(true);
+                  getMoviesList({}, 100, true);
+                  localStorage.setItem("is_skipped", true);
+                }}
+              >
+                Đóng
+              </Button>
               <Button disabled={!userId} onClick={handleLogin}>
                 Tiếp tục
               </Button>

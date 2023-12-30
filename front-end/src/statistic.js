@@ -123,7 +123,7 @@ const Statistic = () => {
         style={{ paddingTop: "40px", paddingBottom: "40px" }}
       >
         <div className="container">
-          <h1>Dashboard</h1>
+          <h1>Thống kê chung về phim trên imdb.com</h1>
 
           <Grid container spacing={6}>
             <Grid item xs={6}>
