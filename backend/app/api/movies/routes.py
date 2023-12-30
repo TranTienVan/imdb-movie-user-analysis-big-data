@@ -48,19 +48,64 @@ def search_movies_job():
         min_number_of_ratings = None
 
     try:
-        min_average_ratings = float(request.args.get("min_average_ratings"))
+        tag_average_ratings = request.args.get("min_average_ratings")
+        
+        if "more" in tag_average_ratings:
+            min_average_ratings = float(tag_average_ratings.split("_")[-1])
+        elif "skip" in tag_average_ratings:
+            min_average_ratings = None
+        else:
+            min_average_ratings = None        
+        
     except:
         min_average_ratings = None
 
     try:
-        min_published_year = float(request.args.get("min_published_year"))
+        age = request.args.get("age")
+        if "less" in age:
+            min_published_year = 2024 - float(age.split("_")[-1])
+            max_published_year = None
+        elif "more" in age:
+            max_published_year = 2024 - float(age.split("_")[-1])
+            min_published_year = None
+        else:
+            min_published_year = 2024 - float(age.split("_")[1])
+            max_published_year = 2024 - float(age.split("_")[0])
+        
     except:
+        age = None
         min_published_year = None
-
-    actor_name = request.args.get("actor_name")
-    director_name = request.args.get("director_name")
+        max_published_year = None
     
-    results = semantic_search(movies_df, keyword, threshold=0.5, n_movies=n_movies, min_number_of_ratings=min_number_of_ratings, min_average_ratings=min_average_ratings, min_published_year=min_published_year, actor_name=actor_name, director_name=director_name)
+    try:
+        categories = request.args.get("categories").split(";")
+    except:
+        categories = []
+    
+    try:
+        gender = request.args.get("gender")
+    except:
+        gender = None
+    # try:
+    #     min_published_year = float(request.args.get("min_published_year"))
+    # except:
+        
+        
+    # try:
+    #     max_published_year = float(request.args.get("max_published_year"))
+    # except:
+    
+    try:
+        actor_names = request.args.get("actor_names").split(";")
+    except:
+        actor_names = []
+    
+    try:
+        director_names = request.args.get("director_names").split(";")
+    except:
+        director_names = []
+    
+    results = semantic_search(movies_df, keyword, threshold=0.5, n_movies=n_movies, min_number_of_ratings=min_number_of_ratings, min_average_ratings=min_average_ratings, min_published_year=min_published_year, max_published_year=max_published_year, actor_names=actor_names, director_names=director_names, categories = categories, gender=gender)
 
     # Return the paginated data
     return dumps(results), 200
