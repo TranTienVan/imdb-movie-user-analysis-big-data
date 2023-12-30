@@ -26,7 +26,7 @@ import InputLabel from "@mui/material/InputLabel";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-
+import { EmbeddUrls } from "./embedd";
 import {
   CategoryScale,
   LinearScale,
@@ -93,6 +93,8 @@ const MovieDetail = () => {
     setIsOpenModal(false);
   };
 
+  console.log("movie.movie_title", movie.movie_title);
+  console.log("ndphong EmbeddUrls", EmbeddUrls[movie.movie_title]);
   const getMovieDetail = async (id) => {
     console.log("ndphong id", id);
 
@@ -269,12 +271,25 @@ const MovieDetail = () => {
                 textTransform: "uppercase",
               }}
             >
-              <img
+              {/* <img
                 src="https://picsum.photos/900/500"
                 style={{
                   borderRadius: "6px",
                 }}
-              />
+              /> */}
+
+              <iframe
+                width="840"
+                height="480"
+                src={
+                  EmbeddUrls[movie.movie_title] ||
+                  "https://www.youtube.com/embed/TyskcLbCkqE?si=IUgj4Z56ZrdG_fA7"
+                }
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
               <div>
                 <h3>Phim liên quan</h3>
                 <div
