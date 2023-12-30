@@ -15,7 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import { blue } from "@mui/material/colors";
-import { DialogContent } from "@mui/material";
+import { DialogContent, Typography } from "@mui/material";
 import { Chart as ChartJS, ArcElement } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import { Bar } from "react-chartjs-2";
@@ -279,8 +279,8 @@ const MovieDetail = () => {
               /> */}
 
               <iframe
-                width="840"
-                height="480"
+                width="924"
+                height="528"
                 src={
                   EmbeddUrls[movie.movie_title] ||
                   "https://www.youtube.com/embed/TyskcLbCkqE?si=IUgj4Z56ZrdG_fA7"
@@ -290,7 +290,7 @@ const MovieDetail = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
               ></iframe>
-              <div>
+              {/* <div>
                 <h3>Phim liên quan</h3>
                 <div
                   style={{
@@ -316,16 +316,18 @@ const MovieDetail = () => {
                       );
                     })}
                 </div>
-              </div>
+              </div> */}
             </div>
             <div>
-              <h2
+              <Typography
+                color="primary"
                 dangerouslySetInnerHTML={{ __html: movie.movie_title }}
                 style={{
                   textTransform: "uppercase",
+                  fontSize: "36px",
                 }}
               />
-              <h3>Nội dung: {movie.description}</h3>
+              <h3>Nội dung: </h3> {movie.description}
               <div style={{ marginTop: "24px" }}>
                 <h3>Bình luận:</h3>
                 <FormControl
