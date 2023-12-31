@@ -19,13 +19,35 @@ const MenuProps = {
   variant: "menu",
 };
 
-const options = [
-  "Hành động",
-  "Hoạt hình",
-  "Tình cảm",
-  "Kinh dị",
-  "Khoa học viễn tưởng",
-  "Hài",
+const cateOptions = [
+  "Drama",
+  "Adult",
+  "War",
+  "Animation",
+  "Film-Noir",
+  "Family",
+  "Reality-TV",
+  "Short",
+  "Talk-Show",
+  "Musical",
+  "Thriller",
+  "Fantasy",
+  "Western",
+  "Romance",
+  "Documentary",
+  "History",
+  "Music",
+  "Crime",
+  "Game-Show",
+  "Sci-Fi",
+  "News",
+  "Adventure",
+  "Sport",
+  "Biography",
+  "Comedy",
+  "Action",
+  "Horror",
+  "Mystery",
 ];
 
-export { MenuProps, options };
+export { MenuProps, cateOptions };

@@ -15,11 +15,18 @@ import ListItemText from "@mui/material/ListItemText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import { blue } from "@mui/material/colors";
-import { DialogContent } from "@mui/material";
+import { DialogContent, Typography } from "@mui/material";
 import { Chart as ChartJS, ArcElement } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import { Bar } from "react-chartjs-2";
-
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import InputLabel from "@mui/material/InputLabel";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { EmbeddUrls } from "./embedd";
 import {
   CategoryScale,
   LinearScale,
@@ -80,10 +87,14 @@ const MovieDetail = () => {
     []
   );
 
+  const [sentimentFilter, setSentimentFilter] = useState("all");
+
   const handleClose = () => {
     setIsOpenModal(false);
   };
 
+  console.log("movie.movie_title", movie.movie_title);
+  console.log("ndphong EmbeddUrls", EmbeddUrls[movie.movie_title]);
   const getMovieDetail = async (id) => {
     console.log("ndphong id", id);
 
@@ -107,9 +118,27 @@ const MovieDetail = () => {
     const res = await axios.get("http://183.81.100.71:8080/api/reviews", {
       params,
     });
-    console.log("ndphong res 1", res);
     if (res && res.data) {
-      setReviews(res.data);
+      let reviewData = res.data.map((item) => {
+        let sentimentObj = JSON.parse(item.sentiment.replace(/'/g, '"'));
+        let sentimentValues = [
+          sentimentObj.neg,
+          sentimentObj.neu,
+          sentimentObj.pos,
+        ];
+        let maxSentiment = Math.max(...sentimentValues);
+        let sentiment = "";
+        for (let key in sentimentObj) {
+          if (sentimentObj[key] === maxSentiment) {
+            sentiment = key;
+          }
+        }
+        return {
+          ...item,
+          sentimentValue: sentiment,
+        };
+      });
+      setReviews(reviewData);
     }
   };
 
@@ -162,6 +191,14 @@ const MovieDetail = () => {
     } catch (error) {
       console.log("ndphong error", error);
     }
+  };
+
+  const filterSentiment = (condition) => {
+    if (condition === "all") return reviews;
+    let updateReviews = reviews.filter(
+      (item) => item.sentimentValue === condition
+    );
+    return updateReviews;
   };
 
   useEffect(() => {
@@ -234,13 +271,26 @@ const MovieDetail = () => {
                 textTransform: "uppercase",
               }}
             >
-              <img
+              {/* <img
                 src="https://picsum.photos/900/500"
                 style={{
                   borderRadius: "6px",
                 }}
-              />
-              <div>
+              /> */}
+
+              <iframe
+                width="924"
+                height="528"
+                src={
+                  EmbeddUrls[movie.movie_title] ||
+                  "https://www.youtube.com/embed/TyskcLbCkqE?si=IUgj4Z56ZrdG_fA7"
+                }
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+              {/* <div>
                 <h3>Phim liên quan</h3>
                 <div
                   style={{
@@ -266,22 +316,55 @@ const MovieDetail = () => {
                       );
                     })}
                 </div>
-              </div>
+              </div> */}
             </div>
             <div>
-              <h2
-                dangerouslySetInnerHTML={{ __html: movie.title }}
+              <Typography
+                color="primary"
+                dangerouslySetInnerHTML={{ __html: movie.movie_title }}
                 style={{
                   textTransform: "uppercase",
+                  fontSize: "36px",
                 }}
               />
-              <h3>Nội dung: {movie.description}</h3>
+              <h3>Nội dung: </h3> {movie.description}
               <div style={{ marginTop: "24px" }}>
                 <h3>Bình luận:</h3>
+                <FormControl
+                  style={{
+                    width: "200px",
+                    marginTop: "12px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <InputLabel id="demo-simple-select-label">Bộ lọc</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={sentimentFilter}
+                    label="Cảm xúc"
+                    onChange={(e) => {
+                      setSentimentFilter(e.target.value);
+                    }}
+                  >
+                    <MenuItem value="all" style={{ width: "200px" }}>
+                      Tất cả
+                    </MenuItem>
+                    <MenuItem value="neg" style={{ width: "200px" }}>
+                      Tiêu cực
+                    </MenuItem>
+                    <MenuItem value="neu" style={{ width: "200px" }}>
+                      Trung lập
+                    </MenuItem>
+                    <MenuItem value="pos" style={{ width: "200px" }}>
+                      Tích cực
+                    </MenuItem>
+                  </Select>
+                </FormControl>
                 <div>
-                  {reviews &&
-                    reviews.length &&
-                    reviews.map((review) => {
+                  {filterSentiment(sentimentFilter) &&
+                    filterSentiment(sentimentFilter).length &&
+                    filterSentiment(sentimentFilter).map((review) => {
                       return (
                         <div
                           style={{
@@ -359,7 +442,7 @@ const MovieDetail = () => {
                     />
                   </div>
                 </div>
-                <Bar
+                {/* <Bar
                   options={options}
                   data={{
                     labels:
@@ -378,7 +461,7 @@ const MovieDetail = () => {
                       },
                     ],
                   }}
-                />
+                /> */}
               </DialogContent>
             </Dialog>
           </div>
