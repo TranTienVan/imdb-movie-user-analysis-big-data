@@ -119,11 +119,11 @@ def recommend_job():
     
     if id:
         if categories:
-            rating_df = recommender_system_3(refined_dataset, user_enc, item_enc, id, recommend_model, n_movies, min_rating, max_rating, category=categories)
+            rating_df = recommender_system_3(refined_dataset, user_enc, item_enc, id, recommend_model, n_movies, min_rating, max_rating, category=categories).merge(test_movies_df[["id", "movie_title"]], left_on="movie", right_on="movie_title", how="inner")
         else:
-            rating_df = recommender_system(refined_dataset, user_enc, item_enc, id, recommend_model, n_movies, min_rating, max_rating)
+            rating_df = recommender_system(refined_dataset, user_enc, item_enc, id, recommend_model, n_movies, min_rating, max_rating).merge(test_movies_df[["id", "movie_title"]], left_on="movie", right_on="movie_title", how="inner")
     else:
-        rating_df = recommender_system_2(test_movies_df, n_movies, category=categories)
+        rating_df = recommender_system_2(test_movies_df, n_movies, category=categories).merge(test_movies_df[["id", "movie_title"]], left_on="movie", right_on="movie_title", how="inner")
     
     # Return the paginated data
     return dumps(rating_df.to_dict("records")), 200

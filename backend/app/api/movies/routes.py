@@ -105,7 +105,7 @@ def search_movies_job():
     except:
         director_names = []
     
-    results = semantic_search(movies_df, keyword, threshold=0.5, n_movies=n_movies, min_number_of_ratings=min_number_of_ratings, min_average_ratings=min_average_ratings, min_published_year=min_published_year, max_published_year=max_published_year, actor_names=actor_names, director_names=director_names, categories = categories, gender=gender)
+    df = semantic_search(movies_df, keyword, threshold=0.5, n_movies=n_movies, min_number_of_ratings=min_number_of_ratings, min_average_ratings=min_average_ratings, min_published_year=min_published_year, max_published_year=max_published_year, actor_names=actor_names, director_names=director_names, categories = categories, gender=gender)
 
     # Return the paginated data
-    return dumps(results), 200
+    return dumps(df.to_dict("records")), 200

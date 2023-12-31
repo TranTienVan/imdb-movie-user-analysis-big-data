@@ -142,7 +142,7 @@ def semantic_search(movies_df, keyword, threshold=0.5, n_movies=10, min_number_o
         df = df[df['director_names'].apply(lambda x: any(director.lower() in x for director in director_names))]
     
     if categories:
-        df = df[df['genre'].apply(lambda x: all(item in x for item in categories))]
+        df = df[df['genre'].apply(lambda x: any(item in x for item in categories))]
     
     if gender:
         df = df[df["gender"] == gender]
@@ -155,7 +155,7 @@ def semantic_search(movies_df, keyword, threshold=0.5, n_movies=10, min_number_o
     
     if not keyword or keyword == "anything":
         for i, text in enumerate(text_list):
-            results.append((text, float(similarity)))
+            results.append({"movie": text, "score": float(similarity)})
             total_film += 1
             if total_film > n_movies:
                 break
@@ -164,9 +164,10 @@ def semantic_search(movies_df, keyword, threshold=0.5, n_movies=10, min_number_o
             text_embedding = nlp(text).vector
             similarity = np.dot(query_embedding, text_embedding) / (np.linalg.norm(query_embedding) * np.linalg.norm(text_embedding))
             if similarity >= threshold:
-                results.append((text, float(similarity)))
+                results.append({"movie": text, "score": float(similarity)})
                 total_film += 1
                 if total_film > n_movies:
                     break
-
-    return results
+    df_results = pd.DataFrame(results)
+    df = df_results.merge(movies_df[["id", "movie_title"]], left_on="movie", right_on="movie_title", how="inner")
+    return df
